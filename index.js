@@ -13,8 +13,26 @@ app.use(express.json());
 
 // Puppeteer browser konfigürasyonu
 const getBrowserConfig = () => {
+  // Render.com'da Chromium path'leri
+  const possiblePaths = [
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/google-chrome',
+    process.env.PUPPETEER_EXECUTABLE_PATH
+  ];
+
+  // Mevcut path'i bul
+  let executablePath = possiblePaths.find(path => {
+    try {
+      return path && require('fs').existsSync(path);
+    } catch (e) {
+      return false;
+    }
+  });
+
   return {
     headless: 'new',
+    executablePath: executablePath,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -24,11 +42,9 @@ const getBrowserConfig = () => {
       '--disable-extensions',
       '--no-first-run',
       '--no-zygote',
-      '--single-process'
-    ],
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || 
-                    process.env.CHROME_BIN || 
-                    puppeteer.executablePath()
+      '--single-process',
+      '--disable-accelerated-2d-canvas'
+    ]
   };
 };
 
