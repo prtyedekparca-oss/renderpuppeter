@@ -11,6 +11,27 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// Puppeteer browser konfigürasyonu
+const getBrowserConfig = () => {
+  return {
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--disable-software-rasterizer',
+      '--disable-extensions',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process'
+    ],
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || 
+                    process.env.CHROME_BIN || 
+                    puppeteer.executablePath()
+  };
+};
+
 // Ana sayfa
 app.get('/', (req, res) => {
   res.json({
@@ -32,15 +53,7 @@ app.get('/screenshot', async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu'
-      ]
-    });
+    const browser = await puppeteer.launch(getBrowserConfig());
 
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
@@ -74,14 +87,7 @@ app.get('/scrape', async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage'
-      ]
-    });
+    const browser = await puppeteer.launch(getBrowserConfig());
 
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
@@ -124,14 +130,7 @@ app.get('/pdf', async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage'
-      ]
-    });
+    const browser = await puppeteer.launch(getBrowserConfig());
 
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
